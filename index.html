@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!--
+    Assignment: Unit 4 Graded Exercise 2 - Visit Tracker With Count
+    Author: Broc Salvati
+    Date: September 27, 2025
+  -->
+  <meta charset="utf-8">
+  <title>Unit 4 Graded Exercise 2</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; margin: 2rem; line-height: 1.5; }
+    header h1 { margin: 0 0 0.5rem; font-size: 1.6rem; }
+    .card {
+      border: 1px solid #ddd; border-radius: 10px; padding: 1.25rem; max-width: 760px;
+      box-shadow: 0 1px 6px rgba(0,0,0,.06);
+    }
+    .muted { color: #555; }
+    .count { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Broc Salvati, Visit Tracker With Count</h1>
+    <p class="muted">This page stores your last visit time and how many times you have visited.</p>
+  </header>
+
+  <main class="card">
+    <div id="message" role="status" aria-live="polite"></div>
+  </main>
+
+  <script>
+    // Format current date and time as "Weekday, MM/DD/YYYY, HH:MM:SS"
+    function formatNow() {
+      var now = new Date();
+      var weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+      var month = String(now.getMonth() + 1).padStart(2, "0");
+      var dayOfMonth = String(now.getDate()).padStart(2, "0");
+      var year = now.getFullYear();
+      var hh = String(now.getHours()).padStart(2, "0");
+      var mm = String(now.getMinutes()).padStart(2, "0");
+      var ss = String(now.getSeconds()).padStart(2, "0");
+      var weekday = weekdays[now.getDay()];
+      return weekday + ", " + month + "/" + dayOfMonth + "/" + year + ", " + hh + ":" + mm + ":" + ss;
+    }
+
+    // Cookie helpers
+    function setCookie(name, value, days) {
+      var expires = "";
+      if (typeof days === "number") {
+        var d = new Date();
+        d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + d.toUTCString();
+      }
+      // SameSite=Lax helps keep cookie across refreshes and simple navigations
+      document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/; SameSite=Lax";
+    }
+
+    function getCookie(name) {
+      var cname = name + "=";
+      var parts = document.cookie.split(";");
+      for (var i = 0; i < parts.length; i++) {
+        var c = parts[i].trim();
+        if (c.indexOf(cname) === 0) {
+          return decodeURIComponent(c.substring(cname.length));
+        }
+      }
+      return null;
+    }
+
+    (function run() {
+      var studentName = "Broc Salvati";
+      var msgEl = document.getElementById("message");
+
+      // Read existing cookie values before updating
+      var lastVisit = getCookie("lastVisit");
+      var visitCountRaw = getCookie("visitCount");
+      var prevCount = visitCountRaw ? parseInt(visitCountRaw, 10) : 0;
+
+      if (!lastVisit || !visitCountRaw) {
+        // First visit
+        msgEl.textContent = "Welcome, " + studentName + ". This appears to be your first visit to this page.";
+      } else {
+        // Subsequent visit or refresh
+        var newCountPreview = prevCount + 1; // display the up-to-date count including this visit
+        msgEl.innerHTML =
+          "Welcome back, " + studentName + ". " +
+          "You have visited this page <span class=\"count\">" + newCountPreview + "</span> times. " +
+          "Your last visit was on " + lastVisit + ".";
+      }
+
+      // Update cookies for next time:
+      // - lastVisit becomes now
+      // - visitCount increments by one
+      var nowFormatted = formatNow();
+      var newCount = prevCount + 1;
+
+      setCookie("lastVisit", nowFormatted, 365);
+      setCookie("visitCount", String(newCount), 365);
+    })();
+  </script>
+</body>
+</html>
